@@ -1,40 +1,18 @@
+# Baseline GitHub Configuration
 
-# Baseline GitHub Configuration as of 4/16/2024
+The following summarizes best practices and a proposed baseline security configuration for GitHub Enterprise Cloud using GitHub users (GitHub Enterprise Managed Users should be roughly similar).
 
-The following summarizes and collects the details from Jira ticket [BCC-833](https://bccsoftware.atlassian.net/browse/BCC-856).
-
-The intent is to document current GitHub configuration.
-
-If you need any changes to this configuration submit a story to the [SE Change Control](https://bccsoftware.atlassian.net/jira/software/c/projects/SECC/boards/79) project using the procedure outlined in [GitHub Change Management](https://bccsoftware.sharepoint.com/%3Aw%3A/r/sites/SoftwareEngineering-All/Shared%20Documents/GitHub/GitHub%20Change%20Management.docx?d=w726694ff3c114d45b6b410fe0f1b7499&csf=1&web=1&e=N2mCG2).
+Intended audience is Engineering Managers, Security Practitioners and developers who will be handling related permissions.
 
 ## Owner accounts for Enterprise and Organization
 
 [GitHub enterprise best practices](https://docs.github.com/en/enterprise-cloud%40latest/admin/overview/best-practices-for-enterprises) and [GitHub best practices for organizations](https://docs.github.com/en/enterprise-cloud%40latest/organizations/collaborating-with-groups-in-organizations/best-practices-for-organizations) recommend assigning multiple owners to avoid risk associated with single point of failure.
 
-Following staff will be assigned as enterprise owners:
-
-* Victor Pinenkov
-* Jim Rouse
-* Brenden Walker
+In general I recommend assigned a trusted developer, one engineering manager and a security pracitioner.
 
 ### Organization Owners
 
-NOTE: Enterprise owners can modify organization owners so having backup/multiple organization owners is not critical.
-
-#### bccsoftware
-
-* Victor Pinenkov
-* Jim Rouse
-* Brenden Walker
-
-#### bccactions
-
-* Brenden Walker
-
-#### bccworkshop
-
-* Brenden Walker
-* Paul Baker (https://bccsoftware.atlassian.net/browse/SECC-15)
+Whether you need Organization level owners depends on need.  Start by reading [GitHub Strategies for using organizations in GitHub Enterprise Cloud](https://resources.github.com/learn/pathways/administration-governance/essentials/strategies-for-using-organizations-github-enterprise-cloud/).  
 
 ## Enterprise Policies and Settings
 
@@ -44,10 +22,10 @@ Policies set at the Enterprise level are documented here, along with a brief jus
 
 ### Policy Settings
 
-#### Member privileges (BWalker ñ changed somewhere in 12/2025)
+#### Member privileges (BWalker ‚Äì changed somewhere in 12/2025)
 
 * **Base Permissions**: Read. Every member has Read access to all repositories.
-* **Repository creation**: Disabled. This may seem too restrictive, however allowing members to create private repositories doesnít seem to have a purpose in a corporate environment. If we find a need for a ëskunkworksí, setting that up as a new organization provides better control.
+* **Repository creation**: Disabled. This may seem too restrictive, however allowing members to create private repositories doesn‚Äôt seem to have a purpose in a corporate environment. If we find a need for a ‚Äòskunkworks‚Äô, setting that up as a new organization provides better control.
 * **Repository forking**: Disabled. Allowing users to fork repositories in a corporate environment can lead to a mess.
 * **Outside collaborators**: Enterprise owners only. We need to keep control of this. Currently contractors have domain accounts, so there is no need for this feature.
 * **Default branch name**: main but NOT enforced across the enterprise. We have many projects with different main branch names.
@@ -58,7 +36,7 @@ Policies set at the Enterprise level are documented here, along with a brief jus
 
 #### Codespaces
 
-* **Manage organization access to GitHub Codespaces**: Disabled. ìOnly public repositories within this enterprise may use GitHub Codespacesî. NOTE: we are blocking the creation of repositories and changing visibility, there should not be any public repositories in our Enterprise
+* **Manage organization access to GitHub Codespaces**: Disabled. ‚ÄúOnly public repositories within this enterprise may use GitHub Codespaces‚Äù. NOTE: we are blocking the creation of repositories and changing visibility, there should not be any public repositories in our Enterprise
 
 #### Copilot
 
@@ -70,7 +48,7 @@ Policies set at the Enterprise level are documented here, along with a brief jus
   + Allow enterprise, and select non-enterprise, actions and reusable workflows
 * Allow actions created by GitHub. We may find that this is too restrictive.
 * **Allow specified actions and reusable workflows**:
-  + microsoft/\* - Weíre allowing microsoft so we have access to official MSBuild and Azure related actions.
+  + microsoft/\* - We‚Äôre allowing microsoft so we have access to official MSBuild and Azure related actions.
   + aws-actions/\* - Official Amazon WebServices actions. We may be able to drop this in the future.
   + bccactions/\* - Our internal organization that contains approved actions/shared workflows.. Etc.
   + azure/\* - Official Microsoft Azure actions.
@@ -79,7 +57,7 @@ Policies set at the Enterprise level are documented here, along with a brief jus
 * **Artifact and log retention**: 90 days (the default value). Organizations can set shorter duration, but not longer.
 * **Fork pull request workflows from outside collaborators**: Require approval for all outside collaborators. We should not have any outside collaborators at this time.
 * **Fork pull request workflows in private repositories**: Unchecked (default). No sense allowing workflow runs in this scenario, we already block creation of private repos for members.
-* **Workflow permissions**: Read repository contents and packages permissions. We may find that existing projects are comitting code during builds. If so, that should be reevaluate as itís in general a bad practice
+* **Workflow permissions**: Read repository contents and packages permissions. We may find that existing projects are comitting code during builds. If so, that should be reevaluate as it‚Äôs in general a bad practice
 * **Allow GitHub Actions to create and approve pull requests**: Unchecked. GitHub Advanced Security, DependaBot or Secrets Scanner may require this. Reevaluate when needed.
 
 #### Projects
@@ -90,7 +68,7 @@ Policies set at the Enterprise level are documented here, along with a brief jus
 
 #### Code security and analysis
 
-* **Dependency Insights**: No Policy (default). This seems like a somewhat passive feature. If itís annoying or cluttered UI we can reconsider.
+* **Dependency Insights**: No Policy (default). This seems like a somewhat passive feature. If it‚Äôs annoying or cluttered UI we can reconsider.
 * **Enable or disable Dependabot alerts by repository admins**: Allowed (default). I see no reason to restrict this.
 
 #### Personal access token policies (Beta)
@@ -126,7 +104,7 @@ The following is meant to be a starting place. Teams will be provided leeway to 
 
 ### Creation
 
-* For ëOwnerí we currently have 3 organizations to choose from:
+* For ‚ÄòOwner‚Äô we currently have 3 organizations to choose from:
   + bccsoftware - all production software.
   + bccworkshop - testing, prototyping, etc. Limited access.
   + bccactions - actions and reusable workflows (third party or internally developed) that have been approved for use.
@@ -138,14 +116,14 @@ The following is meant to be a starting place. Teams will be provided leeway to 
 * **Features**
   + **Wikis** - Team choice
   + \*\* all other features disabled \*\*
-* **Pull Requests** - NOTE: Teams can adjust this as required. If the team allows ëAllow rebase mergingí, they can also have a rule that requires linear history.
+* **Pull Requests** - NOTE: Teams can adjust this as required. If the team allows ‚ÄòAllow rebase merging‚Äô, they can also have a rule that requires linear history.
   + **Allow merge commits** - CHECKED.
   + **Default commit message** set to Default message
-  + **Allow squash merging** ñ UNCHECKED
-  + **Allow rebase merging** ñ UNCHECKED
-  + **Always suggest updating the pull request branches** ñ CHECKED
-  + **Allow auto-merge** ñ CHECKED
-  + **Automatically delete head branches** ñ CHECKED
+  + **Allow squash merging** ‚Äì UNCHECKED
+  + **Allow rebase merging** ‚Äì UNCHECKED
+  + **Always suggest updating the pull request branches** ‚Äì CHECKED
+  + **Allow auto-merge** ‚Äì CHECKED
+  + **Automatically delete head branches** ‚Äì CHECKED
 * **Archives**
   + **Include Git LFS objects in archives**: CHECKED
 * **Pushes**
@@ -157,8 +135,8 @@ NOTE: importable rules are available here: https://github.com/bccsoftware/Infras
 
 Default main branch is protected with the following options CHECKED:
 
-* **Restrict deletions** ñ Prevents deletion of main branch.
-* **Require a pull request before merging** ñ Require a PR
+* **Restrict deletions** ‚Äì Prevents deletion of main branch.
+* **Require a pull request before merging** ‚Äì Require a PR
   + **Require approvals** - 1 approval required.
   + **Require review from Code Owners** (only applies if files in commit have code owners)
   + **Require approval of the most recent reviewable push**
@@ -191,7 +169,7 @@ Access to managing repository rules allows bypassing the rules.
 
 ### Benefit(s)
 
-Allowing teams to define their own ëguardrailsí can result in more effective rules while supporting team flexibility.
+Allowing teams to define their own ‚Äòguardrails‚Äô can result in more effective rules while supporting team flexibility.
 
 ### Permissions
 
