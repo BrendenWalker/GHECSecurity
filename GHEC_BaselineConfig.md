@@ -93,7 +93,7 @@ No relevant to security baseline IMO.
   + **Workflow permissions**: Read repository contents and packages permissions. You may find that existing projects are comitting code during builds. If that's the case it should be reevaluate as it’s in general a bad practice
   + **Allow GitHub Actions to create and approve pull requests**: Unchecked. GitHub Advanced Security, DependaBot or Secrets Scanner may require this. Reevaluate if those features are required.
 
-#### Hosted compute networking
+#### Hosted compute networking Policy
 
 This is a relatively new feature: [About networking for hosted compute products in your organization](https://docs.github.com/en/organizations/managing-organization-settings/about-networking-for-hosted-compute-products-in-your-organization)
 
@@ -103,7 +103,6 @@ This feature has many potential security risks. Recommend disabling unless there
 
 * **Organization projects**: No real security concerns unless you are enabling this on a public repository where bad actors could drop malware links or the like. 
 * **Project visibility change permission**: No Policy needed.  This is already controlled with Enterprise Policy (if you follow this baseline).
-
 
 #### Code security
 
@@ -122,19 +121,45 @@ Entirely up to you.
 
 ### Settings
 
-#### Code security and analysis
+I'm only going to document security related items here. 
 
-* DependaBot
-  + **Automatically enable for new repositories** - CHECKED. Can be disabled at the repo level.
-* NOTE: Secret scanning is only available for public repositories. Private and Internal repositories will need to pay for Advanced Security to get similar function.
+#### Authentication security
+
+##### Two-factor authentication
+
+Require checked. I would also recommend 'Only allow secure two-factor methods' IF possible.
+
+#### SAML single sign on
+
+Recommend using this if you can. Specific settings/configuration depend on your identify provider.
+
+#### Code security
+
+This alllows you to control various settings related to GitHub advanced security. I don't think it's sensible to consider this in the context of baseline security.
+
+#### Audit Log
+
+If possible you should configure log streaming to a secondary/secure service.  
+
+#### Hooks
+
+Webhooks are a potential security risk, mostly information disclosure. Enable only for specific need and follow best practices (https for example).
+
+#### Hosted compute networking Settings
+
+I'm not sure how this differs from the [enterprise policy](#hosted-compute-networking-policy).  In any case I don't think this is in scope for a generally usable security baseline.
+
+#### Github Apps
+
+You'll need to analyze risks for any apps you wish to use.  
 
 ## Organization Permissions
 
-The organization [https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/setting-base-permissions-for-an-organization](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/setting-base-permissions-for-an-organization#setting-base-permissions)setting will be configured with minimal required access and documented as necessary.
+The organization [https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/setting-base-permissions-for-an-organization](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/setting-base-permissions-for-an-organization#setting-base-permissions) setting will be configured with minimal required access and documented as necessary.
 
-Access these from the organization Settings, Member privileges. Note that several settings are inaccessible due to being set by enterprise policy.
+Access these from the organization Settings, Member privileges. Note that several settings are inaccessible due to being set by enterprise policy if you follow this baseline configuration.
 
-The following recommendations from [OpenSSF best practices](https://best.openssf.org/SCM-BestPractices/) will be implemented:
+The following recommendations from [OpenSSF best practices](https://best.openssf.org/SCM-BestPractices/) should be implemented:
 
 * Actions
   + General
@@ -145,23 +170,20 @@ The following recommendations from [OpenSSF best practices](https://best.openssf
 
 ## Repository Creation and Configuration
 
-The following is meant to be a starting place. Teams will be provided leeway to adjust as required/approved.
+Your particular baseline configuration for repositories will depend on how your developers work best.  I'll offer the following as a sensible default.
 
 ### Creation
 
-* For ‘Owner’ we currently have 3 organizations to choose from:
-  + bccsoftware - all production software.
-  + bccworkshop - testing, prototyping, etc. Limited access.
-  + bccactions - actions and reusable workflows (third party or internally developed) that have been approved for use.
+* For ‘Owner’ set an appropriate Organization. 
 * **Visibility**: Private (note: Internal means visible to everyone in the Org, which just clutters the list)
 
 ### Settings
 
-* **Default Branch**. Team choice, main preferred. NOTE: only appears if you have code checked in.
+* **Default Branch**. Team choice, main preferred. NOTE: Only have options here if there is code present.
 * **Features**
   + **Wikis** - Team choice
   + \*\* all other features disabled \*\*
-* **Pull Requests** - NOTE: Teams can adjust this as required. If the team allows ‘Allow rebase merging’, they can also have a rule that requires linear history.
+* **Pull Requests** - NOTE: If you allow a team member Repo Admin rights they can adjust to accomodate needs. See  [Repository Admin For Developers](#repository-admin-for-developers) for more details.
   + **Allow merge commits** - CHECKED.
   + **Default commit message** set to Default message
   + **Allow squash merging** – UNCHECKED
@@ -176,7 +198,7 @@ The following is meant to be a starting place. Teams will be provided leeway to 
 
 ### Rules
 
-NOTE: importable rules are available here: https://github.com/bccsoftware/Infrastructure/tree/main/GitHub/Repository\_Rulesets
+Creating a default ruleset will make this trivial.  This is another area where team composition and workflow may require changes. As a good default I suggest the following:
 
 Default main branch is protected with the following options CHECKED:
 
@@ -187,85 +209,5 @@ Default main branch is protected with the following options CHECKED:
   + **Require approval of the most recent reviewable push**
   + **Require conversation resolution before merging**
 * **Block force pushes**
-
-# Custom Roles
-
-To allow teams as much freedom as possible without giving Admin access, the following custom roles will be created:
-
-**NOTE**: The assignment of these permissions will be on an as needed basis and documented as part of our normal Change Management process.
-
-### Current Assignees
-
-* Bernard Dijk
-* Michael Ray
-* Alex Trandaburu
-* Clay Caragianes
-* Tarr Soeung
-
-## TeamLead
-
-### Purpose
-
-Allows select team members to configure repository rules.
-
-### Risk(s)
-
-Access to managing repository rules allows bypassing the rules.
-
-### Benefit(s)
-
-Allowing teams to define their own ‘guardrails’ can result in more effective rules while supporting team flexibility.
-
-### Permissions
-
-This role adds the following permissions to the Maintain role (note: the following is one permission in GitHub, details provided for clarity):
-
-* Manage [branch protection rules](https://docs.github.com/en/enterprise-cloud%40latest/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule).
-* Manage [tag protection rules](https://docs.github.com/en/enterprise-cloud%40latest/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules).
-* Manage [repository rulesets](https://docs.github.com/en/enterprise-cloud%40latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/managing-rulesets-for-a-repository).
-* Viewing [rule insights](https://docs.github.com/en/enterprise-cloud%40latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/managing-rulesets-for-a-repository).
-
-### Current Assignees
-
-* Bernard Dijk
-
-## ManageActionVariables
-
-### Purpose
-
-Promote good CI/CD secrets and variables management.
-
-Currently there is no way to set up a repository role with the ability to manage secrets and variables, so the only option at the repository level is Admin permissions which are simply too broad.
-
-The organization level role allows the user to set organization action secrets and variables AND these can be restricted to use in specific repositories. This allows for sharing variables within the organization as necessary.
-
-note: GitHub secrets are not viewable as plaintext. Once a secret is created, the only way to modify is to delete and re-create it.
-
-### Risk(s)
-
-A malicious actor with this permission could break builds or potentially redirect output if a variable is controlling build output location.
-
-### Benefit(s)
-
-Allowing select team members the ability to setup action variables and secrets is key to promoting good CI/CD security practices.
-
-## Permissions
-
-The ManageActionVariables role has the following permission:
-
-* Manage organization wide actions [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) and [variables](https://docs.github.com/en/actions/learn-github-actions/variables).
-
-### Current Assignees
-
-* Bernard Dijk
-
-# References
-
-[Best practices for structuring organizations in your enterprise](https://docs.github.com/en/enterprise-cloud%40latest/admin/managing-accounts-and-repositories/managing-organizations-in-your-enterprise/best-practices-for-structuring-organizations-in-your-enterprise).
-
-[GitHub best practices from Openssf.org](https://best.openssf.org/SCM-BestPractices/)
-
-[More information on permissions for enterprise accounts](https://docs.github.com/en/enterprise-cloud%40latest/admin/overview/about-enterprise-accounts)
-
 
 ## Repository Admin For Developers
