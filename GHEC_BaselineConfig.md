@@ -18,62 +18,107 @@ Whether you need Organization level owners depends on need.  Start by reading [G
 
 [Enterprise policies](https://docs.github.com/en/enterprise-cloud%40latest/admin/policies/enforcing-policies-for-your-enterprise/about-enterprise-policies) allow us to enforce policy for all organizations.
 
-Policies set at the Enterprise level are documented here, along with a brief justification or purpose.
+### Policies
+#### In Preview settings
 
-### Policy Settings
+There are some good things in preview currently. I recommend considering these on a limited/trial basis.
+##### Repository
 
-#### Member privileges (BWalker – changed somewhere in 12/2025)
+In preview feature that allows creation of more complex repository policies.  At the time this was written the feature was incommplete.  For example, the 'Add Actors' button indicates you can add roles, teams and apps however only Roles and Deploy Keys were listed.
+
+Consider this feature in the context of [Repository Admin For Developers](#repository-admin-for-developers).
+
+##### Code
+
+Enterprise level branch/tag and push rulesets. You can target specific list, provide bypass, etc. 
+
+###### Branch Rulesets
+
+If feasible, I recommend targetting all organizations and all repositories.  No bypass.  Check Restrict deletions, Block force pushes and Require a pull request before merging.
+
+###### Tag Rulesets
+
+This is very situational.
+
+###### Push Rulesets
+
+Another area where it's going to depend on your particular needs.  
+
+##### Code Insights
+
+I'm not exacly sure what this is for.  It looks like you can create rules similar to the Code section above and this will provide a UI to review the rules.  What I find odd is that you can create rules here that are set to Enforce.  I'll have to dig into the documentation further.
+
+##### Code ruleset bypasses
+
+This is a new feature that appears to allow members to request bypass for a rule. I can imagine scenarios where this is very useful, however I don't believe this is relevant to baseline security configuration.
+
+##### Custom Properties
+
+No relevant to security baseline IMO.
+
+#### Member privileges
 
 * **Base Permissions**: Read. Every member has Read access to all repositories.
-* **Repository creation**: Disabled. This may seem too restrictive, however allowing members to create private repositories doesn’t seem to have a purpose in a corporate environment. If we find a need for a ‘skunkworks’, setting that up as a new organization provides better control.
-* **Repository forking**: Disabled. Allowing users to fork repositories in a corporate environment can lead to a mess.
-* **Outside collaborators**: Enterprise owners only. We need to keep control of this. Currently contractors have domain accounts, so there is no need for this feature.
-* **Default branch name**: main but NOT enforced across the enterprise. We have many projects with different main branch names.
-* **Admin repository permissions** These permissions control what repository administrators are allowed to do. At this time there are no plans to give this permission to anyone, however IF we find a need the following restrictions are in place.
+* **Repository creation**: Disabled. This may seem too restrictive, however allowing members to create repositories doesn’t seem to have much purpose in a corporate environment. If there is a need for a ‘skunkworks’, setting that up as a new organization provides better control.
+* **Repository forking**: Disabled. Allowing members to fork repositories in a corporate environment can lead to a mess.
+* **Outside collaborators**: Enterprise owners only, this is a high risk area.
+* **Default branch name**: main but NOT enforced across the enterprise unless you are starting fresh.
+* **Admin repository permissions** Controls what repository administrators are allowed to do. See [Repository Admin For Developers](#repository-admin-for-developers) for a deeper analysis.
   + **Repository visibility change**: Disabled. Blocks repository admins from changing repository visibility, for example to public.
   + **Repository deletion and transfer**: Disabled. I see no reason to allow admins to delete or transfer a repo.
   + **Repository issue deletion**: Disabled. I see no reason to delete issues, closing with some justification is preferred.
 
 #### Codespaces
 
-* **Manage organization access to GitHub Codespaces**: Disabled. “Only public repositories within this enterprise may use GitHub Codespaces”. NOTE: we are blocking the creation of repositories and changing visibility, there should not be any public repositories in our Enterprise
+* **Manage organization access to GitHub Codespaces**: Disabled. “Only public repositories within this enterprise may use GitHub Codespaces”. Risk of code exposure is an issue, hence recommending Disabled.  Note that Disabled doesn't mean fully disabled, it's still allowed on public repositories.  
 
 #### Copilot
 
-* Disabled. Allowing Copilot would require security/vendor analysis. For now, disabled.
+* Disabled. Allowing Copilot would require deeper security analysis in context of specific policy.  
 
 #### Actions
 
 * **Policies**: Enable for all organizations
   + Allow enterprise, and select non-enterprise, actions and reusable workflows
 * Allow actions created by GitHub. We may find that this is too restrictive.
-* **Allow specified actions and reusable workflows**:
+* **Allow specified actions and reusable workflows**.  Some examples:
   + microsoft/\* - We’re allowing microsoft so we have access to official MSBuild and Azure related actions.
   + aws-actions/\* - Official Amazon WebServices actions. We may be able to drop this in the future.
-  + bccactions/\* - Our internal organization that contains approved actions/shared workflows.. Etc.
   + azure/\* - Official Microsoft Azure actions.
   + docker/\* - Official docker actions (see SECC-17)
-* **Runners** : Disable for all organizations. NOTE: this means that self-hosted runners cannot be managed at the repository level. Runners will need to be provisioned at the organization level.
-* **Artifact and log retention**: 90 days (the default value). Organizations can set shorter duration, but not longer.
-* **Fork pull request workflows from outside collaborators**: Require approval for all outside collaborators. We should not have any outside collaborators at this time.
-* **Fork pull request workflows in private repositories**: Unchecked (default). No sense allowing workflow runs in this scenario, we already block creation of private repos for members.
-* **Workflow permissions**: Read repository contents and packages permissions. We may find that existing projects are comitting code during builds. If so, that should be reevaluate as it’s in general a bad practice
-* **Allow GitHub Actions to create and approve pull requests**: Unchecked. GitHub Advanced Security, DependaBot or Secrets Scanner may require this. Reevaluate when needed.
+* **Runners** : Disable self-hosted runners for all organizations. This means that self-hosted runners cannot be managed at the repository level, requiring management at the Enterprise by owners. The risks of self-hosted runners are well documented in [About self-hosted runners]([https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#self-hosted-runner-security).  
+  + **Artifact and log retention**: 90 days (the default value). Organizations can set shorter duration, but not longer. This isn't really security sensitive, so feel free to change.
+  + **Approval for running fork pull request workflows from contributors**: Require approval for all external contributors. If you've followed the rest of this guide it's not possible to fork anyway, however no reason not to set this tight as well.
+  + **Fork pull request workflows in private repositories**: Run workflows from fork pull requests Unchecked (default). No sense allowing workflow runs in this scenario, another case were we're blocking with another policy.
+  + **Workflow permissions**: Read repository contents and packages permissions. You may find that existing projects are comitting code during builds. If that's the case it should be reevaluate as it’s in general a bad practice
+  + **Allow GitHub Actions to create and approve pull requests**: Unchecked. GitHub Advanced Security, DependaBot or Secrets Scanner may require this. Reevaluate if those features are required.
+
+#### Hosted compute networking
+
+This is a relatively new feature: [About networking for hosted compute products in your organization](https://docs.github.com/en/organizations/managing-organization-settings/about-networking-for-hosted-compute-products-in-your-organization)
+
+This feature has many potential security risks. Recommend disabling unless there is a specific need.
 
 #### Projects
 
-* **Organization projects**: Disabled. We use Jira for this purpose.
-* **Project visibility change permission**: No Policy. Feature is not enabled.
-* **Repository projects**: **Disabled**. Jira.
+* **Organization projects**: No real security concerns unless you are enabling this on a public repository where bad actors could drop malware links or the like. 
+* **Project visibility change permission**: No Policy needed.  This is already controlled with Enterprise Policy (if you follow this baseline).
 
-#### Code security and analysis
 
-* **Dependency Insights**: No Policy (default). This seems like a somewhat passive feature. If it’s annoying or cluttered UI we can reconsider.
+#### Code security
+
+* **Dependency Insights**: No Policy (default). This seems like a somewhat passive feature. If it’s annoying or cluttered UI then reconsider.
 * **Enable or disable Dependabot alerts by repository admins**: Allowed (default). I see no reason to restrict this.
+* **GitHub Advanced Security policies**
+  * If you are using GHAS I recommend setting all options to Allowed and controlling via Billing settings with finer controls on Organization/Repository when needed.
 
-#### Personal access token policies (Beta)
+#### Personal access token policies
 
-* Leave default, to not Enroll currently. We may reevaluate after the feature is stable.
+This policy recently went live/productio and allows control over how PAT's are used. If you are in a high security situation controlling PAT's makes sense.  For baseline I would recommend leaving default values.
+
+#### Sponsors
+
+Entirely up to you.
 
 ### Settings
 
@@ -223,3 +268,4 @@ The ManageActionVariables role has the following permission:
 [More information on permissions for enterprise accounts](https://docs.github.com/en/enterprise-cloud%40latest/admin/overview/about-enterprise-accounts)
 
 
+## Repository Admin For Developers
