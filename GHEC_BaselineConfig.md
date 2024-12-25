@@ -8,11 +8,16 @@ Intended audience is Engineering Managers, Security Practitioners and developers
 
 [GitHub enterprise best practices](https://docs.github.com/en/enterprise-cloud%40latest/admin/overview/best-practices-for-enterprises) and [GitHub best practices for organizations](https://docs.github.com/en/enterprise-cloud%40latest/organizations/collaborating-with-groups-in-organizations/best-practices-for-organizations) recommend assigning multiple owners to avoid risk associated with single point of failure.
 
-In general I recommend assigned a trusted developer, one engineering manager and a security pracitioner.
+In general I recommend assigned a trusted developer, one engineering manager and a trusted IT or security practioner.
 
 ### Organization Owners
 
-Whether you need Organization level owners depends on need.  Start by reading [GitHub Strategies for using organizations in GitHub Enterprise Cloud](https://resources.github.com/learn/pathways/administration-governance/essentials/strategies-for-using-organizations-github-enterprise-cloud/).  
+Whether you need Organization level owners depends on need.  Start by reading [GitHub Strategies for using organizations in GitHub Enterprise Cloud](https://resources.github.com/learn/pathways/administration-governance/essentials/strategies-for-using-organizations-github-enterprise-cloud/).
+
+Start with a single org and add additional if needed. A few examples that might make sense:
+
+* An 'actions' org for shared workflows and actions.
+* A 'workshop' for prototyping, validating any third party actions or any other work that shouldn't clutter the primary org.
 
 ## Enterprise Policies and Settings
 
@@ -211,3 +216,6 @@ Default main branch is protected with the following options CHECKED:
 * **Block force pushes**
 
 ## Repository Admin For Developers
+
+This can be a touchy area depending on policy and team composition.  Many of the risks of repository level Admin rights can be mitigated by Enterprise policy and/or Org settings.
+
