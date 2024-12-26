@@ -1,5 +1,7 @@
 # GitHub Enterprise Cloud Security
-This is an attempt to document best practices around GitHub Enterprise Cloud security.
+GitHub cloud is constantly changing and keeping up with that has become a bit of a challenge. New features make previous configuration obsolete and documenting that in a word doc with change tracking makes a bigger mess.
+
+So it's time to move this to version control. While I was at it, I've documented what I consider a reasonable baseline security configuration.
 
 ## Baseline Security
 
